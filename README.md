@@ -35,9 +35,9 @@ pnpm test packages/utils
 
 ### Publishing/deploying
 
-[types-publisher](./packages/publisher) runs in [GitHub Actions](./.github/workflows/publish-packages.yml) using all monorepo packages built from source on `master`.
+[types-publisher](./packages/publisher) runs in [GitHub Actions](./.github/workflows/publish-packages.yml) using all monorepo packages built from source on the repository's default branch.
 
-The public packages are published to npm using [changesets](https://github.com/changesets/changesets). When making changes to any publishable package, run `pnpm changeset` (ideally as part of the related feature PR) to mark the changed packages for eventual version bumping and release. When that PR is merged, another PR will be automatically opened (or updated) updating package versions and CHANGELOGs. What _that_ PR is merged, a [workflow](./.github/workflows/version-or-publish.yml) will publish the changed packages to npm.
+The public packages are published to npm using [changesets](https://github.com/changesets/changesets). When making changes to any publishable package, run `pnpm changeset` (ideally as part of the related feature PR) to mark the changed packages for eventual version bumping and release. When that PR is merged, another PR will be automatically opened (or updated) to update package versions and CHANGELOGs. Once that PR is merged, a [workflow](./.github/workflows/version-or-publish.yml) will publish the changed packages to npm.
 
 ## Contributing
 

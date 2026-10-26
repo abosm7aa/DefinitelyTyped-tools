@@ -6,7 +6,10 @@ import which from "which";
 const DEFAULT_CRASH_RECOVERY_MAX_OLD_SPACE_SIZE = 4096;
 const DEFAULT_CHILD_RESTART_TASK_INTERVAL = 1_000_000;
 
-/** Run a command and return the error, stdout, and stderr. (Never throws.) */
+/**
+ * Executes a command by resolving it from `PATH` and returns the raw process output and error details.
+ * This method never throws; callers can inspect `error` to decide how to handle a failed command.
+ */
 export function exec(
   cmd: string,
   args: readonly string[],
@@ -24,7 +27,7 @@ export function exec(
   });
 }
 
-/** Run a command and return the stdout, or if there was an error, throw. */
+/** Runs a command and throws a single aggregated error when the process exits unsuccessfully. */
 export async function execAndThrowErrors(
   cmd: string,
   args: readonly string[],
@@ -59,6 +62,11 @@ interface RunWithListeningChildProcessesOptions<In> {
   handleStart?(input: In, processIndex: number | undefined): void;
   handleCrash?(input: In, state: CrashRecoveryState, processIndex: number | undefined): void;
 }
+
+/**
+ * Spawns a pool of worker processes, fans out each input item, and restarts crashed children when recovery is enabled.
+ * This keeps large batches running with a bounded number of concurrent tasks while handling IPC results incrementally.
+ */
 export function runWithListeningChildProcesses<In extends Serializable>({
   inputs,
   commandLineArgs,

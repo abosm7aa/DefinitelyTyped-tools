@@ -31,6 +31,9 @@ export type Owner =
       readonly url?: undefined;
     };
 
+/**
+ * Builds the `typesVersions` object expected by an `@types/*` package that contains one or more `tsX.Y` folders.
+ */
 export function makeTypesVersionsForPackageJson(typesVersions: readonly AllTypeScriptVersion[]): unknown {
   if (typesVersions.length === 0) {
     return undefined;
@@ -45,6 +48,10 @@ export function makeTypesVersionsForPackageJson(typesVersions: readonly AllTypeS
   return out;
 }
 
+/**
+ * Validates a DefinitelyTyped package manifest and normalizes it into the library metadata used by DT tooling.
+ * Returns either a `Header` object or a list of validation errors.
+ */
 export function validatePackageJson(
   typesDirectoryName: string,
   packageJson: Record<string, unknown>,
@@ -334,6 +341,9 @@ export function validatePackageJson(
   }
 }
 
+/**
+ * Lists the TypeScript version folders in a DT package directory, such as `ts3.9`, `ts5.0`, and so on.
+ */
 export function getTypesVersions(dirPath: string): readonly AllTypeScriptVersion[] {
   return mapDefined(fs.readdirSync(dirPath), (name) => {
     if (name === "tsconfig.json") {
@@ -406,6 +416,9 @@ export const enum License {
   Apache20 = "Apache-2.0",
 }
 const allLicenses = [License.MIT, License.Apache20];
+/**
+ * Resolves the effective license metadata for a package.json entry and returns either the canonical license or validation errors.
+ */
 export function getLicenseFromPackageJson(packageJsonLicense: unknown): License | string[] {
   if (packageJsonLicense === undefined) {
     return License.MIT;
@@ -424,6 +437,9 @@ export function getLicenseFromPackageJson(packageJsonLicense: unknown): License 
 }
 // TODO: Move these checks into validatePackageJson and make it return an entire package.json type, not just Header
 // TODO: Expand these checks too, adding name and version just like dtslint
+/**
+ * Validates a package `exports` map and ensures `./package.json` is explicitly exported when `exports` is present.
+ */
 export function checkPackageJsonExportsAndAddPJsonEntry(exports: unknown, path: string) {
   if (exports === undefined) return exports;
   if (typeof exports === "string") {
@@ -441,6 +457,7 @@ export function checkPackageJsonExportsAndAddPJsonEntry(exports: unknown, path: 
   return exports;
 }
 
+/** Validates a package `imports` map and returns either the normalized value or a list of errors. */
 export function checkPackageJsonImports(imports: unknown, path: string): object | string[] | undefined {
   if (imports === undefined) return imports;
   if (typeof imports !== "object") {
@@ -451,6 +468,7 @@ export function checkPackageJsonImports(imports: unknown, path: string): object 
   return imports;
 }
 
+/** Validates the package `type` field and permits only the ESM module marker. */
 export function checkPackageJsonType(type: unknown, path: string) {
   if (type === undefined) return type;
   if (type !== "module") {
@@ -460,6 +478,7 @@ export function checkPackageJsonType(type: unknown, path: string) {
 }
 
 /**
+ * Verifies dependency metadata against the DT allowlist and enforces self-references for dev dependencies.
  * @param devDependencySelfName - pass the package name only for devDependencies
  */
 export function checkPackageJsonDependencies(

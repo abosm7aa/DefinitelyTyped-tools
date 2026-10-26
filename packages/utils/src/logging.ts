@@ -29,7 +29,7 @@ export const consoleLogger: LoggerWithErrors = {
   error: console.error,
 };
 
-/** Logger that *just* records writes and does not output to console. */
+/** Returns a logger that stores messages without emitting them to the console. */
 export function quietLogger(): [Logger, () => Log] {
   const logged: Log = [];
   return [(message: string) => logged.push(message), () => logged];
@@ -47,7 +47,7 @@ function alsoConsoleLogger(consoleLog: Logger): [Logger, () => Log] {
   ];
 }
 
-/** Logger that writes to console in addition to recording a result. */
+/** Returns a logger that emits to the console and also records each message. */
 export function logger(): [Logger, () => Log] {
   return alsoConsoleLogger(consoleLogger.info);
 }
@@ -66,7 +66,7 @@ export function quietLoggerWithErrors(): [LoggerWithErrors, () => LogWithErrors]
   return loggerWithErrorsHelper(quietLogger);
 }
 
-/** Records `info` and `error` messages, calling appropriate console methods as well. */
+/** Records `info` and `error` messages while also writing them to the console. */
 export function loggerWithErrors(): [LoggerWithErrors, () => LogWithErrors] {
   return loggerWithErrorsHelper(logger);
 }
@@ -81,7 +81,7 @@ export function moveLogs(dest: Logger, src: Log, mapper?: (message: string) => s
   }
 }
 
-/** Perform `moveLogs` for both parts of a LogWithErrors. */
+/** Performs `moveLogs` for both informational and error output streams. */
 export function moveLogsWithErrors(
   dest: LoggerWithErrors,
   { infos, errors }: LogWithErrors,
@@ -91,19 +91,23 @@ export function moveLogsWithErrors(
   moveLogs(dest.error, errors, mapper);
 }
 
+/** Resolves the full filesystem path for a named log file under the shared log directory. */
 export function logPath(logName: string): string {
   return joinPaths(logDir, logName);
 }
 
+/** Writes a log entry set to disk, creating the log directory as needed. */
 export async function writeLog(logName: string, contents: readonly string[]): Promise<void> {
   await fs.promises.mkdir(logDir, { recursive: true });
   await writeFile(logPath(logName), contents.join("\r\n"));
 }
 
+/** Combines normal output with the error section when any errors were emitted. */
 export function joinLogWithErrors({ infos, errors }: LogWithErrors): Log {
   return errors.length ? infos.concat(["", "=== ERRORS ===", ""], errors) : infos;
 }
 
+/** Removes the shared log directory and all files under it. */
 export function cleanLogDirectory() {
   fs.rmSync(logDir, { recursive: true, force: true });
 }

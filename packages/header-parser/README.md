@@ -1,9 +1,19 @@
 # DefinitelyTyped Header Parser
 
-This library parses package.jsons of [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped) types.
+This library validates and extracts metadata from DefinitelyTyped package manifests.
 Its name is left over from when package information was stored in textual headers.
 
-# Contributing
+The parser enforces the conventions used by `@types/*` packages, including `tsX.Y` folder layout, `minimumTypeScriptVersion`, owners, projects, licenses, and dependency constraints.
+
+## Typical usage
+
+```ts
+import { validatePackageJson, getTypesVersions } from "@definitelytyped/header-parser";
+
+const header = validatePackageJson("react", packageJson, getTypesVersions("./types/react"));
+```
+
+## Contributing
 
 To build: `pnpm run build`.
 To test: `pnpm test`.
